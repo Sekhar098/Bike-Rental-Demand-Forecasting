@@ -50,6 +50,17 @@ login_manager.init_app(app)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
+import models  
+
+# --- ensure DB tables exist on startup (creates instance/site.db automatically) ---
+with app.app_context():
+    try:
+        os.makedirs(instance_dir, exist_ok=True)   # defensive (instance_dir already created above)
+        db.create_all()
+        print("Database file and tables are ready: instance/site.db")
+    except Exception as e:
+        print("Failed to create DB/tables at startup:", e)
+
 
 # -----------------------------
 # INFERENCE CLASS
