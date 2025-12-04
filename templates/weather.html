@@ -59,6 +59,9 @@
       <div class="nav-left">
         <a href="/" class="active"><img src="../static/images/logo.png" alt="EVision Logo" class="logo" /></a>
       </div>
+      <div class="menu-icon" onclick="toggleMenu()" aria-label="Menu" role="button" tabindex="0">
+        ☰
+      </div>
       <div class="nav-right">
         {% if current_user.is_authenticated %}
         <a href="#"><i class="fa-solid fa-user"></i>Welcome, {{ current_user.username}}</a>
@@ -167,6 +170,50 @@
       }
     }
   </script>
+
+  <script>
+  function toggleMenu() {
+    const nav = document.querySelector('.nav-right');
+    if (!nav) return;
+    nav.classList.toggle('open');
+  }
+
+  // close menu when a nav link is clicked (mobile)
+  document.addEventListener('click', function(e){
+    const nav = document.querySelector('.nav-right');
+    const menuIcon = document.querySelector('.menu-icon');
+    if (!nav || !menuIcon) return;
+
+    // if clicked a link inside nav-right, close it
+    if (e.target.closest('.nav-right a')) {
+      nav.classList.remove('open');
+    }
+
+    // if clicked outside nav-right and not the hamburger, close it
+    if (nav.classList.contains('open') && !e.target.closest('.nav-right') && !e.target.closest('.menu-icon')) {
+      nav.classList.remove('open');
+    }
+  });
+
+  // close on Esc
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape') {
+      const nav = document.querySelector('.nav-right');
+      if (nav) nav.classList.remove('open');
+    }
+  });
+
+  // optional: keyboard Enter/Space activates hamburger for accessibility
+  document.addEventListener('keydown', function(e){
+    const icon = document.querySelector('.menu-icon');
+    if (!icon) return;
+    if ((e.key === 'Enter' || e.key === ' ') && document.activeElement === icon) {
+      e.preventDefault();
+      toggleMenu();
+    }
+  });
+</script>
+
 
 </body>
 

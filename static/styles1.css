@@ -5,6 +5,13 @@
   font-family: Arial, sans-serif;
 }
 
+html,
+body {
+  height: 100%;
+  /* allow min-height calculations */
+  min-height: 100%;
+}
+
 ::-webkit-scrollbar {
   display: none;
 }
@@ -24,7 +31,7 @@ body {
   background: url("../static/images/landing.png") no-repeat center center;
   background-size: cover;
   background-position: center;
-  width: 100%;
+  max-width: 100%;
   height: 100vh;
   display: flex;
   align-items: center;
@@ -35,7 +42,7 @@ body {
 .landing-image {
   width: 100%;
   max-width: 100vw;
-  height: auto;
+  max-height: 100vh;
   object-fit: contain;
 }
 
@@ -70,9 +77,11 @@ body {
   0% {
     box-shadow: 0px 0px 10px rgba(0, 255, 0, 0.5);
   }
+
   50% {
     box-shadow: 0px 0px 20px rgba(0, 255, 0, 1);
   }
+
   100% {
     box-shadow: 0px 0px 10px rgba(0, 255, 0, 0.5);
   }
@@ -163,8 +172,10 @@ body {
 }
 
 .fa-right-from-bracket,
-.fa-question, .fa-home,
-.fa-clock-rotate-left, .fa-cloud {
+.fa-question,
+.fa-home,
+.fa-clock-rotate-left,
+.fa-cloud {
   font-size: 18px;
   margin-left: 10px;
 }
@@ -191,7 +202,11 @@ body {
   flex-wrap: wrap;
   gap: 30px;
   padding: 50px 10%;
+  margin-top: 40px;
+  /* FIX – pushes it below the navbar area */
+  min-height: auto;
 }
+
 
 .step {
   background: white;
@@ -214,10 +229,12 @@ body {
 
 .prediction-section {
   display: flex;
-  flex-direction: column;   /* <-- vertical layout */
+  flex-direction: column;
+  /* <-- vertical layout */
   align-items: center;
   justify-content: flex-start;
-  gap: 40px;                /* space between prediction and profit */
+  gap: 40px;
+  /* space between prediction and profit */
   background: linear-gradient(135deg, #001a00, #004d00);
   color: #ffffff;
   padding: 50px 20px;
@@ -227,11 +244,14 @@ body {
 
 
 /* Prediction container (left) - keep width 1000px and center if needed */
-.prediction-container ,.profit-container {
+.prediction-container,
+.profit-container {
   display: flex;
   flex-direction: column;
-  width: 1200px; /* kept as you requested */
-  margin: 0;     /* removed auto so it sits left when side-by-side */
+  width: 1200px;
+  /* kept as you requested */
+  margin: 0;
+  /* removed auto so it sits left when side-by-side */
   padding: 30px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -260,19 +280,22 @@ body {
 } */
 
 /* Headings and text */
-.prediction-container h2, .profit-container h2 {
+.prediction-container h2,
+.profit-container h2 {
   font-size: 22px;
   margin-bottom: 10px;
   color: #00ff80;
 }
 
-.prediction-container h4, .profit-container h4 {
+.prediction-container h4,
+.profit-container h4 {
   align-self: center;
   margin-top: 15px;
   color: #00ff80;
 }
 
-.prediction-container p, .profit-container p {
+.prediction-container p,
+.profit-container p {
   font-size: 14px;
   margin-bottom: 20px;
   color: #cccccc;
@@ -280,17 +303,21 @@ body {
 
 .prediction-form {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* three equal columns */
-  gap: 20px 30px; /* row-gap and column-gap */
+  grid-template-columns: repeat(3, 1fr);
+  /* three equal columns */
+  gap: 20px 30px;
+  /* row-gap and column-gap */
   align-items: start;
   width: 100%;
 }
 
 /* ensure input-group uses column layout inside each grid cell */
-.prediction-form .input-group,.profit-form .input-group {
+.prediction-form .input-group,
+.profit-form .input-group {
   display: flex;
   flex-direction: column;
-  margin-bottom: 10px; /* spacing handled by grid gap */
+  margin-bottom: 10px;
+  /* spacing handled by grid gap */
 }
 
 /* label & control styles (kept same) */
@@ -301,7 +328,7 @@ body {
 }
 
 .input-group input,
-.input-group select  {
+.input-group select {
   width: 100%;
   padding: 10px;
   border: none;
@@ -314,9 +341,10 @@ body {
 .weather-input {
   gap: 10px;
 
-  
+
 
 }
+
 .weather-input input {
   width: 80%;
   padding: 10px;
@@ -334,7 +362,7 @@ body {
   height: 40px;
 }
 
-.input-group input::placeholder{
+.input-group input::placeholder {
   background: #ddd;
 }
 
@@ -348,7 +376,8 @@ body {
 
 /* Make predict button span across both columns and align below the grid */
 .prediction-form .predict-btn {
-  grid-column: 1 / -1; /* span entire row */
+  grid-column: 1 / -1;
+  /* span entire row */
   margin-top: 10px;
   background: #00ff80;
   color: #000;
@@ -369,15 +398,20 @@ body {
   display: flex;
   flex-direction: column;
 }
-.prediction-form input::placeholder, .profit-form input::placeholder , .weather-input input::placeholder {
+
+.prediction-form input::placeholder,
+.profit-form input::placeholder,
+.weather-input input::placeholder {
   color: #ddd;
 }
 
-#profit-btn{
+#profit-btn {
   margin-top: 28px;
 }
 
-.prediction-form button , .profit-form button , .weather-input button {
+.prediction-form button,
+.profit-form button,
+.weather-input button {
   background: #00ff80;
   color: #000;
   padding: 12px;
@@ -389,7 +423,9 @@ body {
   transition: background 0.3s ease-in-out;
 }
 
-.prediction-form button:hover , .profit-form button:hover , .weather-input button:hover{
+.prediction-form button:hover,
+.profit-form button:hover,
+.weather-input button:hover {
   background: #00cc66;
 }
 
@@ -400,7 +436,8 @@ body {
     padding: 30px 12px;
   }
 
-  .prediction-container {
+  .prediction-container,
+  .profit-container {
     width: 100%;
     max-width: 100%;
     margin: auto;
@@ -411,7 +448,8 @@ body {
   }
 
   .prediction-form {
-    grid-template-columns: 1fr; /* one column on small screens */
+    grid-template-columns: 1fr;
+    /* one column on small screens */
   }
 
   .prediction-form .predict-btn {
@@ -534,5 +572,81 @@ footer {
 
 .center {
   background: linear-gradient(96deg, #001a0e, #084d00);
-  height: 90vh;
+  height: auto;
+  min-height: 100vh;
+}
+
+/* ----- Mobile hamburger nav (only for <=900px) ----- */
+.menu-icon {
+  display: none;
+  /* default hidden on desktop */
+  font-size: 26px;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 6px;
+  user-select: none;
+  margin-left: auto;
+  /* push it to the right */
+}
+
+/* mobile-specific behaviour */
+@media (max-width: 900px) {
+
+  /* show hamburger */
+  .menu-icon {
+    display: block;
+  }
+
+  /* hide nav links by default to avoid breaking layout */
+  .nav-right {
+    display: none;
+    position: absolute;
+    top: 64px;
+    /* below the navbar (adjust if your navbar height differs) */
+    right: 12px;
+    background: rgba(10, 10, 10, 0.95);
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-width: 200px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    flex-direction: column;
+    gap: 12px;
+    z-index: 1100;
+  }
+
+  /* links layout when menu opens */
+  .nav-right a {
+    display: block;
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+
+  /* show nav when .open class added */
+  .nav-right.open {
+    display: flex;
+    animation: menuSlideDown 180ms ease;
+  }
+
+  /* small tweak for login button and profile icon spacing */
+  .nav-right .login-btn {
+    display: inline-block;
+  }
+
+  /* make the navbar nav container keep position consistent */
+  .navbar nav {
+    padding: 12px 16px;
+  }
+
+  @keyframes menuSlideDown {
+    from {
+      transform: translateY(-6px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
 }

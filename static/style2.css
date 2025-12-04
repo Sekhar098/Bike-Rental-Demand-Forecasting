@@ -1,3 +1,5 @@
+/* style2.css - page-specific + responsive table styles */
+
 * {
   margin: 0;
   padding: 0;
@@ -16,6 +18,7 @@ body {
   color: #333;
 }
 
+/* Landing (kept minimal here) */
 .landing {
   background: url("../static/images/landing.png") no-repeat center center;
   background-size: cover;
@@ -35,6 +38,7 @@ body {
   object-fit: contain;
 }
 
+/* NAVBAR (solid dark to avoid grey look) */
 .navbar nav {
   display: flex;
   justify-content: space-between;
@@ -44,7 +48,7 @@ body {
   top: 0;
   left: 0;
   z-index: 1000;
-  background: #0a0a0a;
+  background: #000000; /* solid dark */
 }
 
 .nav-left {
@@ -110,41 +114,30 @@ body {
   background: rgba(255, 255, 255, 0.4);
 }
 
-.profile-icon {
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.fa-right-from-bracket,
-.fa-question, .fa-home, .fa-cloud {
-  font-size: 16px;
-  margin-left: 10px;
-}
-
-.fa-user {
-  font-size: 16px;
-  margin-right: 10px;
-}
-
+/* Page layout */
 .hero {
   text-align: center;
   padding: 50px 20px;
   color: #e3f2fd;
 }
 
-.hero h1 {
-  font-size: 2.5em;
-  margin-bottom: 10px;
+/* History table */
+.history-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  padding: 12px;
 }
 
 .history-table {
   width: 100%;
-  max-width: 800px;
+  min-width: 600px; /* gives space for columns before scroll */
+  max-width: 1000px;
   margin: 20px auto;
   border-collapse: collapse;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  background: #ffffff;
 }
 
 .history-table thead {
@@ -156,39 +149,37 @@ body {
 .history-table td {
   padding: 12px 15px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+  color: #222;
 }
 
 .history-table tbody tr:nth-child(even) {
-  background-color: #f2f2f2;
+  background-color: #fafafa;
 }
 
 .history-table tbody tr:hover {
-  background-color: #ddd;
+  background-color: #f2f2f2;
   cursor: pointer;
 }
 
-main {
-  background-color: #f8f9fa;
-  text-align: center;
-  height: 100vh;
-  /* margin-top: 30px; */
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
+/* Graph container */
+.graph {
+  width: 100%;
+  max-width: 1000px;
+  margin: 24px auto 48px;
+  height: 320px; /* Chart will fill this area */
+  padding: 12px;
 }
 
-@media (max-width: 600px) {
-  .history-table {
-    width: 100%;
-    font-size: 14px;
-  }
+/* No-data message */
+.no-data {
+  margin: 30px auto;
+  color: #444;
+  font-size: 18px;
 }
 
-/* FOOTER */
-
+/* footer (kept consistent with main styles) */
 footer {
   text-align: center;
   padding: 40px 30px;
@@ -196,111 +187,71 @@ footer {
   color: white;
 }
 
-.footer-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  max-width: 1200px;
-  margin: auto;
-  flex-wrap: wrap;
+/* responsive tweaks */
+@media (max-width: 900px) {
+  .nav-right {
+      display: none;   
+    gap: 18px;
+  }
 }
 
-.footer-left {
-  flex: 1;
-  max-width: 350px;
+/* mobile: stacked-card table (for very small screens) */
+@media (max-width: 700px) {
+  .history-table {
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+    margin: 0;
+  }
+
+  .history-table thead {
+    display: none;
+  }
+
+  .history-table tbody tr {
+    display: block;
+    margin: 12px 8px;
+    padding: 12px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+  }
+
+  .history-table tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border: none;
+    font-size: 15px;
+    color: #222;
+  }
+
+  .history-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    margin-right: 8px;
+    color: #333;
+  }
+
+  .history-table-wrapper {
+    padding: 8px;
+  }
+
+  .graph {
+    height: 260px;
+    padding: 8px;
+  }
 }
 
-.footer-logo {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  margin-bottom: 10px;
+/* very small screens horizontal scroll fallback */
+@media (max-width: 480px) {
+  .history-table {
+    min-width: 100%;
+  }
 }
 
-.footer-left p {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #cccccc;
-}
-
-.footer-center {
-  flex: 1;
-  min-width: 200px;
-  text-align: center;
-}
-
-.footer-center h3,
-.footer-right h3 {
-  font-size: 18px;
-  margin-bottom: 15px;
-  color: #00ff80;
-}
-
-.footer-center ul {
-  list-style: none;
-  padding: 0;
-}
-
-.footer-center ul li {
-  margin: 8px 0;
-}
-
-.footer-center ul li a {
-  color: #ffffff;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.footer-center ul li a:hover {
-  color: #00ff80;
-}
-
-.footer-right {
-  flex: 1;
-  min-width: 250px;
-  text-align: right;
-}
-
-.footer-right p {
-  font-size: 14px;
-  margin: 5px 0;
-  color: #cccccc;
-}
-
-.social-icons {
-  margin-top: 15px;
-}
-
-.social-link {
-  display: inline-block;
-  margin: 0 7px;
-  font-size: 20px;
-  color: #ffffff;
-  transition: color 0.3s ease-in-out;
-}
-
-.social-link:hover {
-  color: #00ff80;
-}
-
-.footer-bottom {
-  text-align: center;
-  padding-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  margin-top: 20px;
-}
-
-.footer-bottom p {
-  font-size: 14px;
-  color: #888;
-}
-
-.center {
-  background: linear-gradient(96deg, #001a0e, #084d00);
-  height: 90vh;
-}
-
-#predictionChart{
-  height: 300px;
-  padding: 20px;
+/* chart canvas sizing */
+#predictionChart {
+  width: 100% !important;
+  height: 100% !important;
 }
