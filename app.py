@@ -1,102 +1,59 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
-from flask_login import login_user, login_required, logout_user, current_user
-import pickle
 import os
+import pickle
 from datetime import datetime
-import pandas as pd
-import numpy as np
-from extensions import db, bcrypt, login_manager  
-from models import User, Prediction
 import warnings
-warnings.filterwarnings("ignore", category=UserWarning)  # hides xgboost user warnings
-from sklearn.exceptions import InconsistentVersionWarning
-warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
 
-# weather
+import numpy as np
+import pandas as pd
 import requests
-from flask import Flask, jsonify
 from dotenv import load_dotenv
-load_dotenv()
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask_login import login_user, login_required, logout_user, current_user
+
+from sklearn.exceptions import InconsistentVersionWarning
+
+# project imports
+from extensions import db, bcrypt, login_manager
+from models import User, Prediction
+
+# -----------------------------
+# ENV + WARNINGS
+# -----------------------------
+load_dotenv()  # loads .env into environment if present
+
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
 
 API_KEY = os.getenv("API_KEY")
 BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
 
-
-
+# -----------------------------
+# FLASK APP + CONFIG
+# -----------------------------
 app = Flask(__name__)
-# near top of your file (after BASE_DIR computed)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# ensure instance dir exists
+# base dir and instance for sqlite
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 instance_dir = os.path.join(BASE_DIR, "instance")
 os.makedirs(instance_dir, exist_ok=True)
 
-# use absolute path for sqlite DB
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///" + os.path.join(instance_dir, "site.db")
-# other config
-app.config['SECRET_KEY'] = 'mykey123'
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "default-secret")
 
+# initialize extensions
+db.init_app(app)
+bcrypt.init_app(app)
+login_manager.init_app(app)
 
-db.init_app(app) 
-bcrypt.init_app(app) 
-login_manager.init_app(app)  
 
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Routes here (signup, login, etc.)
-@app.route('/')
-def home():
-    return render_template('index.html')
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-
-        existing_user = User.query.filter_by(email=email).first()
-        if existing_user:
-            flash("Email already exists!", "danger")
-            return redirect(url_for('signup'))
-
-        new_user = User(username=username, email=email, password=hashed_password)
-        db.session.add(new_user)
-        db.session.commit()
-
-        flash("Account created! You can now log in.", "success")
-        return redirect(url_for('login'))
-
-    return render_template('signup.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        user = User.query.filter_by(email=email).first()
-
-        if user and bcrypt.check_password_hash(user.password, password):
-            login_user(user)
-            return redirect(url_for('home'))
-        else:
-            flash("Invalid credentials!", "danger")
-
-    return render_template('login.html')
-
-@app.route('/logout')
-@login_required
-def logout():
-    logout_user()
-    return redirect(url_for('home'))
-
-@app.route('/how-it-works')
-def how_it_works():
-    return render_template('how-it-works.html')
-
+# -----------------------------
+# INFERENCE CLASS
+# -----------------------------
 class Inference:
     def __init__(self, model_path, sc_path):
         self.model_path = model_path
@@ -120,7 +77,6 @@ class Inference:
             self.model = pickle.load(f)
         with open(self.sc_path, "rb") as f:
             self.sc = pickle.load(f)
-
 
     def get_string_to_datetime(self, date):
         try:
@@ -189,15 +145,84 @@ class Inference:
             'Temperature (°C)': 'Temperature(°C)'
         }, inplace=True)
 
-        df = df[['Hour', 'Temperature(°C)', 'Humidity(%)', 'Wind speed (m/s)', 'Visibility (10m)', 
-                 'Solar Radiation (MJ/m2)', 'Rainfall(mm)', 'Snowfall (cm)', 'Holiday', 'Functioning Day', 
-                 'Day', 'Month', 'Year', 'Spring', 'Summer', 'Winter', 'Monday', 'Saturday', 'Sunday', 
+        df = df[['Hour', 'Temperature(°C)', 'Humidity(%)', 'Wind speed (m/s)', 'Visibility (10m)',
+                 'Solar Radiation (MJ/m2)', 'Rainfall(mm)', 'Snowfall (cm)', 'Holiday', 'Functioning Day',
+                 'Day', 'Month', 'Year', 'Spring', 'Summer', 'Winter', 'Monday', 'Saturday', 'Sunday',
                  'Thursday', 'Tuesday', 'Wednesday']]
 
         # Ensure the model and scaler are expecting the same feature names and order
         scaled_data = self.sc.transform(df)
         prediction = self.model.predict(scaled_data)
         return prediction
+
+
+# -----------------------------
+# LOAD INFERENCE (must be global so routes can use it)
+# -----------------------------
+ml_model_path = os.path.join(BASE_DIR, "models", "xgboost_regressor_r2_0_928_v1.pkl")
+standard_scaler_path = os.path.join(BASE_DIR, "models", "sc.pkl")
+
+# create inference object at import time (so WSGI servers have it)
+inference = Inference(ml_model_path, standard_scaler_path)
+
+
+# -----------------------------
+# ROUTES
+# -----------------------------
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            flash("Email already exists!", "danger")
+            return redirect(url_for('signup'))
+
+        new_user = User(username=username, email=email, password=hashed_password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Account created! You can now log in.", "success")
+        return redirect(url_for('login'))
+
+    return render_template('signup.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            return redirect(url_for('home'))
+        else:
+            flash("Invalid credentials!", "danger")
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+
+@app.route('/how-it-works')
+def how_it_works():
+    return render_template('how-it-works.html')
 
 
 @app.route('/predict', methods=['POST'])
@@ -232,6 +257,10 @@ def predict():
 
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        # Catch-all to help debug on host logs
+        return jsonify({'error': str(e)}), 500
+
 
 @app.route('/prediction-history')
 @login_required
@@ -242,10 +271,12 @@ def prediction_history():
     values = [p.prediction for p in predictions]
     return render_template('prediction_history.html', predictions=predictions, hours=hours, values=values)
 
+
 # weather
 @app.route('/weather')
 def weather_page():
     return render_template('weather.html')  # Serve the weather page
+
 
 @app.route('/get_weather', methods=['GET'])
 def get_weather():
@@ -257,7 +288,7 @@ def get_weather():
     response = requests.get(url)
     data = response.json()
 
-    if response.status_code == 200:
+    if response.status_code == 200 and "main" in data:
         weather_info = {
             "temperature": data["main"]["temp"],
             "humidity": data["main"]["humidity"],
@@ -270,17 +301,9 @@ def get_weather():
         return jsonify({"error": "City not found"}), 404
 
 
+# -----------------------------
+# LOCAL RUN
+# -----------------------------
 if __name__ == '__main__':
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     print("Base Directory:", BASE_DIR)
-
-    # Relative model paths
-    ml_model_path = os.path.join(BASE_DIR, "models", "xgboost_regressor_r2_0_928_v1.pkl")
-    standard_scaler_path = os.path.join(BASE_DIR, "models", "sc.pkl")
-
-    # Create inference object
-    inference = Inference(ml_model_path, standard_scaler_path)
-
     app.run(debug=True)
-
-
