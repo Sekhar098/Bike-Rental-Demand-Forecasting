@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(to right, #335399, #00ff9d);
+      display: flex;
+      justify-content: center;
+    }
+
+    h1 {
+      font-weight: bold;
+    }
+
+    form p {
+      margin-top: 15px;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .sign-up-page {
+      width: 350px;
+      height: 550px;
+      margin-left: 1px;
+      border-radius: 1rem;
+      background: rgb(235, 235, 235);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #292929;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      transition: all 0.4s;
+    }
+
+    .sign-up-page:hover {
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .sign-up-page h1 {
+      margin-bottom: 25px;
+    }
+
+    .sign-up-page form {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .sign-up-page form input {
+      width: 250px;
+      height: 35px;
+      margin: 8px;
+      background: rgb(218, 218, 218);
+      border: none;
+      padding-left: 10px;
+      outline: none;
+      transform: all 0.4s;
+    }
+
+    .sign-up-page form input:focus {
+      background: rgb(194, 194, 194);
+    }
+
+    .btn {
+      color: white;
+      font-weight: 600;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .sign-up-page form .btn {
+      width: 250px;
+      height: 35px;
+      margin: 8px;
+      background: #10847e;
+      border: none;
+      border-radius: 1rem;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.4s;
+    }
+
+    .sign-up-page form .btn:hover {
+      background-color: #10847ecb;
+    }
+
+    .alert {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      height: fit-content;
+      width: fit-content;
+    }
+
+    .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+  </style>
+  <link rel="shortcut icon" href="../static/favicon.ico">
+  <title>Sign-Up Page</title>
+</head>
+
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  {% for category, message in messages %}
+  <div class="alert alert-{{ category }}">{{ message }}</div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
+  <div class="sign-up-page">
+    <h1>Sign-Up</h1>
+    <form method="POST">
+      <input type="text" name="username" placeholder="Enter Username" required />
+      <input type="email" id="email" name="email" required placeholder="Enter E-mail" />
+      <input type="password" id="password" name="password" required placeholder="Enter Password" />
+
+      <button action="" type="submit" class="btn">Sign Up</button>
+      <p>
+        Already have an account? <a href="{{ url_for('login') }}">Login</a>
+      </p>
+    </form>
+  </div>
+</body>
+
+</html>

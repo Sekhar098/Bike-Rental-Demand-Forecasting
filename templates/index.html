@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="../static/favicon.ico">
+  <title>EV Bike Demand Forecasting</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles1.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+  <!--------------- HEADER --------------->
+  <header class="navbar">
+    <nav style="position: absolute">
+      <div class="nav-left">
+        <a href="">
+          <img src="../static/images/logo.png" alt="EVision Logo" class="logo" />
+        </a>
+      </div>
+      <div class="nav-right">
+        {% if current_user.is_authenticated %}
+        <a href="#"><i class="fa-solid fa-user"></i>Welcome, {{ current_user.username}}</a>
+        <a href="{{ url_for('logout') }}">Logout <i class="fa-solid fa-right-from-bracket"></i></a>
+        <a href="{{ url_for('prediction_history') }}">Prediction History<i
+            class="fa-solid fa-clock-rotate-left"></i></a>
+        {% else %}
+        <a href="{{ url_for('login') }}" onclick="showLoginForm()">Login</a>
+        <a href="{{ url_for('signup') }}" onclick="showSignupForm()">Signup</a>
+        {% endif %}
+        <a href="{{ url_for('weather_page') }}">Weather<i class="fa-solid fa-cloud"></i></a>
+        <a href="{{ url_for('how_it_works') }}">How It Works<i class="fa-solid fa-question"></i></a>
+      </div>
+    </nav>
+  </header>
+
+  <!--------------- BANNER --------------->
+  <div class="landing">
+    <button class="getstarted-btn" onclick="scrollToPrediction()">
+      Get Started
+    </button>
+  </div>
+
+  <!--------------- PREDICTION  --------------->
+  <section class="prediction-section">
+    <div class="prediction-container">
+      <h2>EV Bike Rental Prediction</h2>
+      <p>
+        Enter the required details to predict the demand for EV bike rentals.
+      </p>
+
+      <form id="bikePredictionForm" class="prediction-form">
+        <div class="input-group">
+          <label for="date">Date (dd/mm/yyyy):</label>
+          <input type="text" id="date" name="date" value="13/07/2025" required />
+        </div>
+
+        <div class="input-group">
+          <label for="hour">Hour (0-23):</label>
+          <input type="number" id="hour" name="hour" min="0" max="23" value="5" required />
+        </div>
+
+        <div class="input-group">
+          <label for="temperature">Temperature (°C):</label>
+          <input type="number" id="temperature" name="temperature" step="0.1" value="37" required />
+        </div>
+
+        <div class="input-group">
+          <label for="humidity">Humidity (%):</label>
+          <input type="number" id="humidity" name="humidity" step="0.1" value="55" required />
+        </div>
+
+        <div class="input-group">
+          <label for="wind_speed">Wind Speed (m/s):</label>
+          <input type="number" id="wind_speed" name="wind_speed" step="0.1" value="35" required />
+        </div>
+
+        <div class="input-group">
+          <label for="visibility">Visibility (m):</label>
+          <input type="number" id="visibility" name="visibility" step="0.1" value="100" required />
+        </div>
+
+        <div class="input-group">
+          <label for="solar_radiation">Solar Radiation (W/m²):</label>
+          <input type="number" id="solar_radiation" name="solar_radiation" step="0.1" value="0.0" required />
+        </div>
+
+        <div class="input-group">
+          <label for="rainfall">Rainfall (mm):</label>
+          <input type="number" id="rainfall" name="rainfall" step="0.1" value="0.7" required />
+        </div>
+
+        <div class="input-group">
+          <label for="snowfall">Snowfall (cm):</label>
+          <input type="number" id="snowfall" name="snowfall" step="0.1" value="0.2" required />
+        </div>
+
+        <div class="input-group">
+          <label for="seasons">Season:</label>
+          <select id="seasons" name="seasons" required>
+            <option style="color: #0a0a0a" value="Spring">Spring</option>
+            <option style="color: #0a0a0a" value="Autumn">Autumn</option>
+            <option style="color: #0a0a0a" value="Summer">Summer</option>
+            <option style="color: #0a0a0a" value="Winter">Winter</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="holiday">Holiday:</label>
+          <select id="holiday" name="holiday" required>
+            <option style="color: #0a0a0a" value="Holiday">Holiday</option>
+            <option style="color: #0a0a0a" value="No Holiday">
+              No Holiday
+            </option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="functioning_day">Functioning Day:</label>
+          <select id="functioning_day" name="functioning_day" required>
+            <option style="color: #0a0a0a" value="Yes">Yes</option>
+            <option style="color: #0a0a0a" value="No">No</option>
+          </select>
+        </div>
+        <button type="submit" class="predict-btn" value="Predict">
+          Predict
+        </button>
+      </form>
+      <h4>
+        Rented Bike Count prediction with respect to time:
+        <span id="result" style="font-weight: 900"></span>
+      </h4>
+    </div>
+
+    <section class="profit-section">
+      <div class="profit-container">
+        <h2>EV Bike Rental Profit Estimation</h2>
+        <p>
+          Enter the bike rental fare per hour to estimate the total profit based on the predicted rental demand.
+        </p>
+
+        <form id="profitForm" class="profit-form">
+          <div class="input-group">
+            <label for="bikeprice">Bike Rent fare (per hour):</label>
+            <input type="number" id="bikeprice" name="bikeprice" min="0" max="100000" value="250" required />
+          </div>
+
+          <button id="profit-btn" value="Profit">
+            Calculate
+          </button>
+          <h4>
+            Total Profit of Rented Bike Count prediction:
+            <span id="profit-result" style="font-weight: 900"></span>
+          </h4>
+        </form>
+
+      </div>
+    </section>
+  </section>
+
+
+
+  <!------------------------ Footer ---------------------------->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <img src="../static/images/logo.png" alt="EV Bike Logo" class="footer-logo" />
+        <p>
+          Ride Smart, Go Green. Rent an EV bike and explore the city with
+          ease.
+        </p>
+      </div>
+
+      <!-- <div class="footer-center">
+        <h3>Quick Links</h3>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="{{ url_for('how_it_works') }}">How It Works</a></li>
+          <li>
+            <a href="{{ url_for('prediction_history') }}">Prediction History</a>
+          </li>
+        </ul>
+      </div> -->
+
+      <div class="footer-right">
+        <h3>Contact Us</h3>
+        <p>Email: support@evbikerentals.com</p>
+        <p>Phone: +123 456 7890</p>
+        <p>Location: Green City, EV Street</p>
+        <div class="social-icons">
+          <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 EV Bike Rentals. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!------------------------ Scripts ---------------------------->
+  <script>
+    function scrollToPrediction() {
+      document.querySelector(".prediction-section").scrollIntoView({ behavior: "smooth" });
+    }
+  </script>
+
+
+  <script>
+    $(document).ready(function () {
+      $("#bikePredictionForm").submit(function (event) {
+        event.preventDefault();
+        $.ajax({
+          type: "POST",
+          url: "/predict",
+          data: $(this).serialize(),
+          success: function (response) {
+            Math.abs($("#result").text(response.prediction));
+          },
+          error: function (xhr) {
+            $("#result").text("Error: " + xhr.responseJSON.error);
+          },
+        });
+      });
+    });
+  </script>
+
+  <script>
+    document.getElementById("profit-btn").addEventListener("click", function (event) {
+      event.preventDefault();
+      // Get user input for bike fare
+      let bikeFare = parseFloat(document.getElementById("bikeprice").value);
+
+      // Get predicted bike count from the previous prediction (Assume it's displayed somewhere)
+      let predictedBikeCount = parseInt(document.getElementById("result").textContent);
+
+      // Validate input values
+      if (isNaN(bikeFare) || bikeFare <= 0) {
+        alert("Please enter a valid bike fare.");
+        return;
+      }
+
+      if (isNaN(predictedBikeCount) || predictedBikeCount < 0) {
+        alert("Predicted bike count is not available.");
+        return;
+      }
+
+      // Calculate total profit
+      let totalProfit = predictedBikeCount * bikeFare;
+      totalProfit = totalProfit.toLocaleString('en-IN');
+
+      // Display result
+      document.getElementById("profit-result").textContent = `₹${totalProfit}`;
+    });
+
+  </script>
+</body>
+
+</html>

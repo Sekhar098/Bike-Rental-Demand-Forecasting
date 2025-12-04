@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="shortcut icon" href="../static/favicon.ico">
+  <title>How It Works - EV Bike Demand</title>
+  <link rel="stylesheet" href="../static/styles1.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .weatherbox {
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 40px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+      color: white;
+    }
+
+    h1 {
+      color: white;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    /* input,
+    button {
+      padding: 10px;
+      margin: 5px;
+      font-size: 16px;
+    } */
+  </style>
+</head>
+
+<body>
+  <header class="navbar">
+    <nav style="background: #0a0a0a">
+      <div class="nav-left">
+        <a href="/" class="active"><img src="../static/images/logo.png" alt="EVision Logo" class="logo" /></a>
+      </div>
+      <div class="nav-right">
+        {% if current_user.is_authenticated %}
+        <a href="#"><i class="fa-solid fa-user"></i>Welcome, {{ current_user.username}}</a>
+        <a href="{{ url_for('logout') }}">Logout <i class="fa-solid fa-right-from-bracket"></i></a>
+        <a href="{{ url_for('prediction_history') }}">Prediction History<i
+            class="fa-solid fa-clock-rotate-left"></i></a>
+        {% else %}
+        <a href="{{ url_for('login') }}" onclick="showLoginForm()">Login</a>
+        <a href="{{ url_for('signup') }}" onclick="showSignupForm()">Signup</a>
+        {% endif %}
+        <a href="{{ url_for('home') }}">Home<i class="fa-solid fa-home"></i></a>
+        <a href="{{ url_for('how_it_works') }}">How It Works<i class="fa-solid fa-question"></i></a>
+      </div>
+    </nav>
+  </header>
+
+  <div class="center" style="display: flex; flex-direction: column ; justify-content: center; align-items: center;">
+    <h1>Check Weather</h1>
+    <div class="weather-input" style="display: flex; flex-direction:row;">
+      <input type="text" id="cityInput" placeholder="Enter city name">
+      <button onclick="fetchWeather()">Get Weather</button>
+    </div>
+    
+    <div class="weatherbox" id="weather-container" style="display: none;">
+      <h1>Weather in <span id="city">Thane</span></h1>
+      <p><strong>Temperature:</strong> <span id="temperature"></span>°C</p>
+      <p><strong>Humidity:</strong> <span id="humidity"></span>%</p>
+      <p><strong>Wind Speed:</strong> <span id="wind_speed"></span> m/s</p>
+      <p><strong>Description:</strong> <span id="description"></span></p>
+    </div>
+  </div>
+
+  <!-- <div class="container">
+    <h2>Check Weather</h2>
+    <input type="text" id="cityInput" placeholder="Enter city name">
+    <button onclick="fetchWeather()">Get Weather</button>
+
+    <div id="weather-container" style="display: none;">
+        <h2>Weather in <span id="city"></span></h2>
+        <p><strong>Temperature:</strong> <span id="temperature"></span>°C</p>
+        <p><strong>Humidity:</strong> <span id="humidity"></span>%</p>
+        <p><strong>Wind Speed:</strong> <span id="wind_speed"></span> m/s</p>
+        <p><strong>Description:</strong> <span id="description"></span></p>
+    </div>
+</div> -->
+
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <img src="../static/images/logo.png" alt="EV Bike Logo" class="footer-logo" />
+        <p>
+          Ride Smart, Go Green. Rent an EV bike and explore the city with
+          ease.
+        </p>
+      </div>
+
+      <div class="footer-right">
+        <h3>Contact Us</h3>
+        <p>Email: support@evbikerentals.com</p>
+        <p>Phone: +123 456 7890</p>
+        <p>Location: Green City, EV Street</p>
+
+        <div class="social-icons">
+          <a href="#" class="social-link"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2025 EV Bike Rentals. All Rights Reserved.</p>
+    </div>
+  </footer>
+
+  <!-- scripts -->
+  <script>
+    async function fetchWeather() {
+      const city = document.getElementById("cityInput").value.trim();
+
+      if (!city) {
+        alert("Please enter a city name");
+        return;
+      }
+
+      try {
+        const response = await fetch(`/get_weather?city=${city}`);
+        const data = await response.json();
+
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+
+        // Show the weather data in the HTML
+        document.getElementById("weather-container").style.display = "block";
+        document.getElementById("city").textContent = data.city;
+        document.getElementById("temperature").textContent = data.temperature;
+        document.getElementById("humidity").textContent = data.humidity;
+        document.getElementById("wind_speed").textContent = data.wind_speed;
+        document.getElementById("description").textContent = data.description;
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+      }
+    }
+  </script>
+
+</body>
+
+</html>
