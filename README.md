@@ -239,7 +239,7 @@ Bike-Rental-Demand-Forecasting/
 # ✍️ Author
 
 **Sekhar Gauda**  
-[GitHub](https://github.com/Sekhar098)  
+[GitHub](https://github.com/sekhargauda)  
 [LinkedIn](https://www.linkedin.com/in/sekhargauda) 
 
 ---
